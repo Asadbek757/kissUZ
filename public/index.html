@@ -2,339 +2,933 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8">
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  >
-
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#090b12">
   <title>SpinUZ</title>
 
-  <script src="/socket.io/socket.io.js"></script>
-
   <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
     }
 
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-      background: #17110c;
-      color: white;
+    html,body{
+      margin:0;
+      padding:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:#090b12;
+      color:#fff;
     }
 
-    body {
-      display: flex;
-      justify-content: center;
+    button,input{
+      font:inherit;
     }
 
-    .app {
-      position: relative;
-      width: 100%;
-      max-width: 500px;
-      height: 100vh;
-      overflow: hidden;
+    button{
+      border:0;
+      cursor:pointer;
+    }
+
+    .app{
+      width:100%;
+      height:100%;
+      position:relative;
+      overflow:hidden;
       background:
-        radial-gradient(circle at center, #4b301b 0%, #2c1c10 45%, #130d08 100%);
+        radial-gradient(circle at 50% 25%,rgba(85,98,150,.15),transparent 35%),
+        linear-gradient(180deg,#10131d 0%,#080a10 100%);
     }
 
-    /* TOP BAR */
+    /* ================= HEADER ================= */
 
-    .topbar {
-      height: 64px;
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      z-index: 10;
+    .topbar{
+      height:64px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:8px 14px;
+      position:relative;
+      z-index:10;
     }
 
-    .top-left,
-    .top-right {
-      display: flex;
-      align-items: center;
-      gap: 7px;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:9px;
     }
 
-    .heart {
-      background: rgba(0, 0, 0, .35);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 18px;
-      padding: 7px 11px;
-      font-size: 14px;
+    .brand-logo{
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(145deg,#ffda65,#b47a1b);
+      box-shadow:0 5px 18px rgba(255,190,50,.2);
+      font-size:20px;
+      color:#3b2604;
+      font-weight:900;
     }
 
-    .menu-btn {
-      width: 40px;
-      height: 40px;
-      border: 0;
-      border-radius: 50%;
-      background: rgba(0,0,0,.38);
-      color: white;
-      font-size: 21px;
+    .brand-text{
+      font-weight:800;
+      font-size:17px;
+      letter-spacing:.2px;
     }
 
-    .table-number {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 19px;
-      font-size: 13px;
-      opacity: .8;
+    .coin-box{
+      display:flex;
+      align-items:center;
+      gap:7px;
+      padding:7px 12px;
+      border-radius:20px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
     }
 
-    /* TABLE */
+    .coin-icon{
+      width:21px;
+      height:21px;
+      border-radius:50%;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:linear-gradient(145deg,#ffd96a,#c18418);
+      color:#4d3000;
+      font-weight:900;
+      font-size:11px;
+    }
 
-    .table {
-      position: absolute;
-      left: 50%;
-      top: 54%;
-      width: 92%;
-      height: 64%;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
+    .coin-balance{
+      font-weight:800;
+      font-size:14px;
+    }
+
+    /* ================= PAGES ================= */
+
+    .pages{
+      position:absolute;
+      top:64px;
+      left:0;
+      right:0;
+      bottom:72px;
+    }
+
+    .page{
+      display:none;
+      width:100%;
+      height:100%;
+      overflow:auto;
+      padding:10px 14px 25px;
+      scrollbar-width:none;
+    }
+
+    .page::-webkit-scrollbar{
+      display:none;
+    }
+
+    .page.active{
+      display:block;
+    }
+
+    /* ================= TABLE ================= */
+
+    .table-page{
+      padding:0 10px 10px;
+      overflow:hidden;
+    }
+
+    .room-info{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:4px 5px 8px;
+      color:#aeb4c5;
+      font-size:12px;
+    }
+
+    .room-name{
+      color:#fff;
+      font-weight:700;
+    }
+
+    .room-number{
+      opacity:.7;
+    }
+
+    .game-table{
+      position:relative;
+      width:100%;
+      height:calc(100% - 34px);
+      min-height:390px;
+      border-radius:28px;
       background:
-        radial-gradient(ellipse at center, #a7662f 0%, #77451f 48%, #3d2110 100%);
-      border: 10px solid #24140a;
+        radial-gradient(circle at center,rgba(75,102,75,.3),transparent 48%),
+        linear-gradient(145deg,#17251e,#0d1713);
+      border:1px solid rgba(255,255,255,.08);
+      overflow:hidden;
       box-shadow:
-        inset 0 0 35px rgba(0,0,0,.65),
-        0 20px 50px rgba(0,0,0,.55);
+        inset 0 0 60px rgba(0,0,0,.45),
+        0 15px 45px rgba(0,0,0,.25);
     }
 
-    .table::after {
-      content: "";
-      position: absolute;
-      inset: 13px;
-      border-radius: 50%;
-      border: 2px solid rgba(255,255,255,.08);
-      pointer-events: none;
+    .table-glow{
+      position:absolute;
+      width:270px;
+      height:270px;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(95,150,105,.16),transparent 70%);
+      pointer-events:none;
     }
 
-    /* BOTTLE */
+    /* ================= PLAYERS ================= */
 
-    .bottle-area {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 150px;
-      height: 150px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .player{
+      position:absolute;
+      width:74px;
+      text-align:center;
+      z-index:5;
     }
 
-    .bottle {
-      position: relative;
-      width: 30px;
-      height: 100px;
-      transform-origin: 50% 50%;
-      filter: drop-shadow(0 7px 5px rgba(0,0,0,.5));
+    .player-avatar{
+      width:54px;
+      height:54px;
+      margin:auto;
+      border-radius:50%;
+      border:2px solid rgba(255,255,255,.22);
+      background:linear-gradient(145deg,#303849,#171b26);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:24px;
+      box-shadow:0 7px 18px rgba(0,0,0,.3);
+      position:relative;
     }
 
-    .bottle-body {
-      position: absolute;
-      bottom: 0;
-      left: 4px;
-      width: 22px;
-      height: 65px;
-      border-radius: 9px 9px 5px 5px;
-      background: linear-gradient(
-        90deg,
-        #164c2b,
-        #4fae68,
-        #164c2b
-      );
-      border: 2px solid #12351f;
+    .player.active .player-avatar{
+      border-color:#63d68a;
+      box-shadow:0 0 0 3px rgba(99,214,138,.12),0 8px 20px rgba(0,0,0,.35);
     }
 
-    .bottle-neck {
-      position: absolute;
-      top: 3px;
-      left: 10px;
-      width: 10px;
-      height: 38px;
-      border-radius: 4px;
-      background: linear-gradient(
-        90deg,
-        #164c2b,
-        #63bd78,
-        #164c2b
-      );
+    .online-dot{
+      position:absolute;
+      width:10px;
+      height:10px;
+      right:1px;
+      bottom:1px;
+      border-radius:50%;
+      background:#55db80;
+      border:2px solid #121720;
     }
 
-    .bottle-cap {
-      position: absolute;
-      top: 0;
-      left: 9px;
-      width: 12px;
-      height: 7px;
-      border-radius: 2px;
-      background: #d9b56c;
+    .player-name{
+      margin-top:5px;
+      font-size:11px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color:#e8ebf2;
     }
 
-    /* PLAYERS */
-
-    .player {
-      position: absolute;
-      width: 78px;
-      text-align: center;
-      z-index: 5;
+    .player-role{
+      font-size:9px;
+      color:#8e96aa;
+      margin-top:1px;
     }
 
-    .avatar {
-      width: 50px;
-      height: 50px;
-      margin: auto;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(145deg, #777, #333);
-      border: 3px solid #d9b56c;
-      box-shadow: 0 5px 15px rgba(0,0,0,.45);
-      font-size: 23px;
+    .p1{top:14px;left:50%;transform:translateX(-50%);}
+    .p2{top:27%;left:7px;}
+    .p3{top:27%;right:7px;}
+    .p4{bottom:27%;left:7px;}
+    .p5{bottom:27%;right:7px;}
+    .p6{bottom:14px;left:50%;transform:translateX(-50%);}
+
+    /* ================= BOTTLE ================= */
+
+    .bottle-area{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      width:170px;
+      height:170px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
     }
 
-    .player-name {
-      margin-top: 5px;
-      font-size: 11px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .spin-ring{
+      position:absolute;
+      width:156px;
+      height:156px;
+      border-radius:50%;
+      border:1px dashed rgba(255,255,255,.11);
     }
 
-    .player-age {
-      font-size: 10px;
-      opacity: .65;
+    .bottle{
+      position:relative;
+      width:42px;
+      height:112px;
+      transform-origin:50% 50%;
+      transition:transform .25s cubic-bezier(.2,.8,.2,1);
+      filter:drop-shadow(0 12px 9px rgba(0,0,0,.45));
     }
 
-    .p1 {
-      left: 50%;
-      top: 5%;
-      transform: translateX(-50%);
+    .bottle-neck{
+      position:absolute;
+      width:15px;
+      height:32px;
+      left:13.5px;
+      top:0;
+      border-radius:5px 5px 3px 3px;
+      background:linear-gradient(90deg,#6d7783,#e5ebef,#66707b);
+      border:1px solid rgba(255,255,255,.25);
     }
 
-    .p2 {
-      right: 5%;
-      top: 27%;
+    .bottle-cap{
+      position:absolute;
+      width:18px;
+      height:7px;
+      left:12px;
+      top:-4px;
+      border-radius:3px;
+      background:linear-gradient(180deg,#e9eef2,#6e7780);
     }
 
-    .p3 {
-      right: 5%;
-      bottom: 20%;
+    .bottle-body{
+      position:absolute;
+      width:42px;
+      height:78px;
+      left:0;
+      top:26px;
+      border-radius:17px 17px 13px 13px;
+      background:
+        linear-gradient(90deg,
+          #5d6872 0%,
+          #dce2e5 22%,
+          #9ca8ae 48%,
+          #e8edef 66%,
+          #5a646e 100%);
+      border:1px solid rgba(255,255,255,.32);
+      overflow:hidden;
     }
 
-    .p4 {
-      left: 50%;
-      bottom: 4%;
-      transform: translateX(-50%);
+    .bottle-liquid{
+      position:absolute;
+      left:4px;
+      right:4px;
+      bottom:4px;
+      height:45px;
+      border-radius:9px 9px 10px 10px;
+      background:linear-gradient(180deg,#78d5ec,#347fbd);
+      opacity:.82;
     }
 
-    .p5 {
-      left: 5%;
-      bottom: 20%;
+    .bottle-label{
+      position:absolute;
+      z-index:2;
+      left:4px;
+      right:4px;
+      top:30px;
+      height:22px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      border-radius:4px;
+      background:#eee;
+      color:#222;
+      font-size:8px;
+      font-weight:900;
+      letter-spacing:.5px;
     }
 
-    .p6 {
-      left: 5%;
-      top: 27%;
+    .turn-indicator{
+      position:absolute;
+      bottom:-27px;
+      left:50%;
+      transform:translateX(-50%);
+      white-space:nowrap;
+      padding:6px 12px;
+      border-radius:15px;
+      background:rgba(0,0,0,.32);
+      border:1px solid rgba(255,255,255,.08);
+      color:#9ea7b8;
+      font-size:11px;
     }
 
-    /* BOTTOM */
-
-    .bottom {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 105px;
-      padding: 12px;
-      background: linear-gradient(
-        to top,
-        rgba(10,7,4,.96),
-        rgba(10,7,4,.7),
-        transparent
-      );
-      z-index: 20;
+    .spin-button{
+      position:absolute;
+      left:50%;
+      bottom:17px;
+      transform:translateX(-50%);
+      min-width:130px;
+      padding:12px 20px;
+      border-radius:25px;
+      color:#10150f;
+      background:linear-gradient(135deg,#82e39d,#43bd69);
+      font-weight:900;
+      box-shadow:0 8px 25px rgba(55,190,101,.2);
+      z-index:8;
     }
 
-    .spin-btn {
-      display: block;
-      width: min(280px, 75%);
-      height: 52px;
-      margin: auto;
-      border: 0;
-      border-radius: 27px;
-      background: linear-gradient(135deg, #f4c45d, #b87920);
-      color: #241507;
-      font-size: 17px;
-      font-weight: 800;
-      box-shadow: 0 7px 20px rgba(0,0,0,.4);
+    .spin-button:active{
+      transform:translateX(-50%) scale(.96);
     }
 
-    .spin-btn:active {
-      transform: scale(.96);
+    .spin-button.disabled{
+      opacity:.45;
+      pointer-events:none;
     }
 
-    .status {
-      text-align: center;
-      margin-top: 7px;
-      font-size: 11px;
-      opacity: .7;
+    /* ================= CHAT ================= */
+
+    .chat-bar{
+      position:absolute;
+      left:10px;
+      right:10px;
+      bottom:69px;
+      height:43px;
+      display:flex;
+      align-items:center;
+      gap:7px;
+      padding:5px;
+      border-radius:23px;
+      background:rgba(10,13,19,.88);
+      border:1px solid rgba(255,255,255,.08);
+      z-index:15;
+      backdrop-filter:blur(12px);
     }
 
-    /* MENU */
-
-    .menu {
-      position: absolute;
-      inset: 0;
-      z-index: 100;
-      display: none;
-      background: rgba(0,0,0,.72);
-      backdrop-filter: blur(8px);
+    .chat-input{
+      flex:1;
+      min-width:0;
+      height:33px;
+      border:0;
+      outline:0;
+      color:#fff;
+      background:transparent;
+      padding:0 10px;
+      font-size:13px;
     }
 
-    .menu.open {
-      display: block;
+    .chat-input::placeholder{
+      color:#747d90;
     }
 
-    .menu-box {
-      position: absolute;
-      right: 12px;
-      top: 58px;
-      width: 220px;
-      padding: 8px;
-      border-radius: 18px;
-      background: #25170d;
-      border: 1px solid rgba(255,255,255,.1);
-      box-shadow: 0 15px 40px rgba(0,0,0,.55);
+    .emoji-btn,
+    .send-btn{
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      color:#fff;
+      background:rgba(255,255,255,.08);
     }
 
-    .menu-item {
-      width: 100%;
-      padding: 13px 12px;
-      border: 0;
-      border-radius: 12px;
-      background: transparent;
-      color: white;
-      text-align: left;
-      font-size: 14px;
+    .send-btn{
+      background:#45c873;
+      color:#0b160e;
+      font-weight:900;
     }
 
-    .menu-item:active {
-      background: rgba(255,255,255,.08);
+    /* ================= BOTTOM NAV ================= */
+
+    .bottom-nav{
+      position:absolute;
+      bottom:0;
+      left:0;
+      right:0;
+      height:72px;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      background:rgba(8,10,16,.96);
+      border-top:1px solid rgba(255,255,255,.07);
+      z-index:30;
+      backdrop-filter:blur(18px);
     }
 
-    .close-menu {
-      color: #ffca63;
+    .nav-btn{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap:4px;
+      color:#737b8d;
+      background:transparent;
+      font-size:10px;
+      position:relative;
+    }
+
+    .nav-icon{
+      font-size:21px;
+      line-height:22px;
+    }
+
+    .nav-btn.active{
+      color:#73d993;
+    }
+
+    .nav-btn.active::before{
+      content:"";
+      position:absolute;
+      top:0;
+      width:30px;
+      height:2px;
+      border-radius:2px;
+      background:#73d993;
+    }
+
+    /* ================= COMMON PAGE UI ================= */
+
+    .page-title{
+      font-size:22px;
+      font-weight:900;
+      margin:7px 0 16px;
+    }
+
+    .card{
+      background:rgba(255,255,255,.045);
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:18px;
+      padding:14px;
+      margin-bottom:11px;
+    }
+
+    .section-title{
+      font-size:12px;
+      color:#7f8799;
+      margin:17px 4px 8px;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+
+    /* ================= DATING ================= */
+
+    .dating-card{
+      width:100%;
+      min-height:480px;
+      border-radius:25px;
+      overflow:hidden;
+      background:linear-gradient(145deg,#252b39,#11151f);
+      border:1px solid rgba(255,255,255,.08);
+      position:relative;
+    }
+
+    .dating-avatar{
+      height:330px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-size:110px;
+      background:
+        radial-gradient(circle at center,rgba(108,214,147,.15),transparent 60%),
+        linear-gradient(145deg,#252d3c,#151a25);
+    }
+
+    .dating-info{
+      padding:17px;
+    }
+
+    .dating-name{
+      font-size:22px;
+      font-weight:900;
+    }
+
+    .dating-sub{
+      color:#929bad;
+      margin-top:5px;
+      font-size:13px;
+    }
+
+    .dating-actions{
+      display:flex;
+      justify-content:center;
+      gap:25px;
+      margin-top:15px;
+    }
+
+    .dating-action{
+      width:58px;
+      height:58px;
+      border-radius:50%;
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      font-size:25px;
+    }
+
+    /* ================= CHATS ================= */
+
+    .chat-item{
+      display:flex;
+      align-items:center;
+      gap:11px;
+      padding:13px 5px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    .chat-avatar{
+      width:48px;
+      height:48px;
+      border-radius:50%;
+      background:linear-gradient(145deg,#3d4658,#1b202c);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-size:23px;
+      flex-shrink:0;
+    }
+
+    .chat-info{
+      min-width:0;
+      flex:1;
+    }
+
+    .chat-name{
+      font-weight:800;
+      font-size:14px;
+    }
+
+    .chat-last{
+      color:#777f91;
+      font-size:12px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      margin-top:3px;
+    }
+
+    .chat-time{
+      color:#666e80;
+      font-size:10px;
+    }
+
+    /* ================= SHOP ================= */
+
+    .balance-card{
+      padding:20px;
+      text-align:center;
+      border-radius:22px;
+      background:linear-gradient(145deg,#252a38,#141821);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .big-balance{
+      font-size:30px;
+      font-weight:900;
+      margin-top:5px;
+    }
+
+    .shop-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+    }
+
+    .shop-item{
+      padding:16px 10px;
+      border-radius:17px;
+      background:rgba(255,255,255,.045);
+      border:1px solid rgba(255,255,255,.07);
+      text-align:center;
+    }
+
+    .shop-coin{
+      font-size:31px;
+      margin-bottom:7px;
+    }
+
+    .shop-amount{
+      font-size:17px;
+      font-weight:900;
+    }
+
+    .shop-price{
+      margin-top:7px;
+      color:#71d692;
+      font-weight:800;
+      font-size:12px;
+    }
+
+    .buy-btn{
+      margin-top:10px;
+      padding:8px 16px;
+      border-radius:16px;
+      background:#3dc26c;
+      color:#07130b;
+      font-size:11px;
+      font-weight:900;
+    }
+
+    /* ================= PROFILE ================= */
+
+    .profile-head{
+      text-align:center;
+      padding:15px 0 10px;
+    }
+
+    .profile-avatar{
+      width:88px;
+      height:88px;
+      margin:auto;
+      border-radius:50%;
+      background:linear-gradient(145deg,#465268,#1b202c);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-size:43px;
+      border:3px solid rgba(255,255,255,.12);
+    }
+
+    .profile-name{
+      font-size:20px;
+      font-weight:900;
+      margin-top:9px;
+    }
+
+    .profile-city{
+      color:#81899a;
+      font-size:12px;
+      margin-top:3px;
+    }
+
+    .setting-row{
+      width:100%;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 4px;
+      color:#fff;
+      background:transparent;
+      text-align:left;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    .setting-icon{
+      width:32px;
+      text-align:center;
+      font-size:20px;
+    }
+
+    .setting-text{
+      flex:1;
+    }
+
+    .setting-title{
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .setting-sub{
+      color:#747d90;
+      font-size:11px;
+      margin-top:2px;
+    }
+
+    .arrow{
+      color:#626a7c;
+    }
+
+    /* ================= TOGGLE ================= */
+
+    .toggle{
+      width:43px;
+      height:24px;
+      border-radius:15px;
+      background:#353b49;
+      padding:3px;
+      transition:.2s;
+    }
+
+    .toggle::after{
+      content:"";
+      display:block;
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:#fff;
+      transition:.2s;
+    }
+
+    .toggle.on{
+      background:#43c570;
+    }
+
+    .toggle.on::after{
+      transform:translateX(19px);
+    }
+
+    /* ================= MODAL ================= */
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      z-index:100;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      background:rgba(0,0,0,.66);
+      backdrop-filter:blur(4px);
+    }
+
+    .overlay.show{
+      display:flex;
+    }
+
+    .modal{
+      width:100%;
+      max-width:520px;
+      max-height:85vh;
+      overflow:auto;
+      background:#151923;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:25px 25px 0 0;
+      padding:17px;
+      animation:modalUp .22s ease;
+    }
+
+    @keyframes modalUp{
+      from{transform:translateY(100%);}
+      to{transform:translateY(0);}
+    }
+
+    .modal-handle{
+      width:42px;
+      height:4px;
+      margin:0 auto 15px;
+      border-radius:4px;
+      background:#464c5b;
+    }
+
+    .modal-title{
+      font-size:18px;
+      font-weight:900;
+      margin-bottom:15px;
+    }
+
+    .modal-profile{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding-bottom:15px;
+      border-bottom:1px solid rgba(255,255,255,.07);
+    }
+
+    .modal-avatar{
+      width:58px;
+      height:58px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#303849;
+      font-size:27px;
+    }
+
+    .modal-actions{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:8px;
+      margin-top:14px;
+    }
+
+    .modal-action{
+      padding:13px 8px;
+      border-radius:13px;
+      background:rgba(255,255,255,.06);
+      color:#fff;
+      font-size:12px;
+    }
+
+    .modal-action.danger{
+      color:#ff7474;
+    }
+
+    .close-btn{
+      width:100%;
+      margin-top:12px;
+      padding:12px;
+      border-radius:14px;
+      background:#252b38;
+      color:#fff;
+      font-weight:700;
+    }
+
+    /* ================= DAILY ================= */
+
+    .daily-icon{
+      text-align:center;
+      font-size:55px;
+      margin:8px 0;
+    }
+
+    .daily-text{
+      text-align:center;
+      color:#9da5b5;
+      line-height:1.5;
+      font-size:13px;
+    }
+
+    .primary-btn{
+      width:100%;
+      padding:13px;
+      border-radius:15px;
+      margin-top:14px;
+      background:#46c872;
+      color:#07150c;
+      font-weight:900;
+    }
+
+    /* ================= TOAST ================= */
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:92px;
+      transform:translate(-50%,20px);
+      opacity:0;
+      pointer-events:none;
+      z-index:200;
+      padding:10px 15px;
+      border-radius:20px;
+      background:#252b38;
+      border:1px solid rgba(255,255,255,.08);
+      color:#fff;
+      font-size:12px;
+      transition:.22s;
+      white-space:nowrap;
+    }
+
+    .toast.show{
+      opacity:1;
+      transform:translate(-50%,0);
+    }
+
+    /* ================= RESPONSIVE ================= */
+
+    @media(max-height:650px){
+      .game-table{
+        min-height:350px;
+      }
+
+      .player-avatar{
+        width:47px;
+        height:47px;
+        font-size:20px;
+      }
+
+      .bottle-area{
+        transform:translate(-50%,-50%) scale(.86);
+      }
+
+      .dating-avatar{
+        height:270px;
+      }
     }
   </style>
 </head>
@@ -343,171 +937,935 @@
 
 <div class="app">
 
-  <!-- TOP -->
-
-  <div class="topbar">
-
-    <div class="top-left">
-      <div class="heart">❤️ 0</div>
+  <!-- HEADER -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo">S</div>
+      <div class="brand-text">SpinUZ</div>
     </div>
 
-    <div class="table-number">
-      Stol 1
+    <div class="coin-box">
+      <div class="coin-icon">●</div>
+      <div class="coin-balance" id="coinBalance">1 250</div>
     </div>
+  </header>
 
-    <div class="top-right">
-      <button class="menu-btn" onclick="toggleMenu()">☰</button>
-    </div>
+  <!-- PAGES -->
+  <main class="pages">
 
-  </div>
+    <!-- ================= TABLE PAGE ================= -->
+    <section class="page table-page active" id="page-tables">
 
+      <div class="room-info">
+        <div>
+          <span class="room-name">Stol #1248</span>
+          <span class="room-number"> • 6/6</span>
+        </div>
+        <button onclick="nextTable()" style="background:transparent;color:#73d993;font-size:12px;font-weight:700">
+          Boshqa stol →
+        </button>
+      </div>
 
-  <!-- TABLE -->
+      <div class="game-table">
 
-  <div class="table">
+        <div class="table-glow"></div>
 
-    <!-- PLAYERS -->
+        <!-- PLAYER 1 -->
+        <div class="player p1 active" onclick="openPlayer('Aziza','👩🏻','24 yosh • Toshkent')">
+          <div class="player-avatar">
+            👩🏻
+            <span class="online-dot"></span>
+          </div>
+          <div class="player-name">Aziza</div>
+          <div class="player-role">navbat</div>
+        </div>
 
-    <div class="player p1">
-      <div class="avatar">👤</div>
-      <div class="player-name">O'yinchi 1</div>
-      <div class="player-age">18</div>
-    </div>
+        <!-- PLAYER 2 -->
+        <div class="player p2" onclick="openPlayer('Jasur','👨🏻','22 yosh • Samarqand')">
+          <div class="player-avatar">
+            👨🏻
+            <span class="online-dot"></span>
+          </div>
+          <div class="player-name">Jasur</div>
+        </div>
 
-    <div class="player p2">
-      <div class="avatar">👤</div>
-      <div class="player-name">O'yinchi 2</div>
-      <div class="player-age">20</div>
-    </div>
+        <!-- PLAYER 3 -->
+        <div class="player p3" onclick="openPlayer('Madina','👩🏼','21 yosh • Buxoro')">
+          <div class="player-avatar">
+            👩🏼
+            <span class="online-dot"></span>
+          </div>
+          <div class="player-name">Madina</div>
+        </div>
 
-    <div class="player p3">
-      <div class="avatar">👤</div>
-      <div class="player-name">O'yinchi 3</div>
-      <div class="player-age">19</div>
-    </div>
+        <!-- PLAYER 4 -->
+        <div class="player p4" onclick="openPlayer('Bekzod','👨🏽','25 yosh • Andijon')">
+          <div class="player-avatar">
+            👨🏽
+            <span class="online-dot"></span>
+          </div>
+          <div class="player-name">Bekzod</div>
+        </div>
 
-    <div class="player p4">
-      <div class="avatar">👤</div>
-      <div class="player-name">O'yinchi 4</div>
-      <div class="player-age">21</div>
-    </div>
+        <!-- PLAYER 5 -->
+        <div class="player p5" onclick="openPlayer('Malika','👩🏽','23 yosh • Namangan')">
+          <div class="player-avatar">
+            👩🏽
+            <span class="online-dot"></span>
+          </div>
+          <div class="player-name">Malika</div>
+        </div>
 
-    <div class="player p5">
-      <div class="avatar">👤</div>
-      <div class="player-name">O'yinchi 5</div>
-      <div class="player-age">20</div>
-    </div>
+        <!-- PLAYER 6 -->
+        <div class="player p6" onclick="openPlayer('Sardor','👨🏼','26 yosh • Farg‘ona')">
+          <div class="player-avatar">
+            👨🏼
+            <span class="online-dot"></span>
+          </div>
+          <div class="player-name">Sardor</div>
+        </div>
 
-    <div class="player p6">
-      <div class="avatar">👤</div>
-      <div class="player-name">O'yinchi 6</div>
-      <div class="player-age">19</div>
-    </div>
+        <!-- BOTTLE -->
+        <div class="bottle-area">
+          <div class="spin-ring"></div>
 
+          <div class="bottle" id="bottle">
 
-    <!-- BOTTLE -->
+            <div class="bottle-neck"></div>
+            <div class="bottle-cap"></div>
 
-    <div class="bottle-area">
-      <div class="bottle" id="bottle">
+            <div class="bottle-body">
+              <div class="bottle-liquid"></div>
+              <div class="bottle-label">SPINUZ</div>
+            </div>
 
-        <div class="bottle-cap"></div>
-        <div class="bottle-neck"></div>
-        <div class="bottle-body"></div>
+          </div>
+
+          <div class="turn-indicator" id="turnIndicator">
+            Sizning navbatingiz
+          </div>
+        </div>
+
+        <button class="spin-button" id="spinButton" onclick="spinBottle()">
+          🍾 Aylantirish
+        </button>
 
       </div>
-    </div>
 
-  </div>
+      <!-- CHAT -->
+      <div class="chat-bar">
+        <button class="emoji-btn" onclick="showToast('Emoji oynasi tez orada')">☺</button>
+
+        <input
+          class="chat-input"
+          id="chatInput"
+          placeholder="Stol chatiga yozing..."
+          maxlength="200"
+          onkeydown="if(event.key==='Enter') sendMessage()"
+        >
+
+        <button class="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+
+    </section>
 
 
-  <!-- BOTTOM -->
+    <!-- ================= DATING ================= -->
+    <section class="page" id="page-dating">
 
-  <div class="bottom">
+      <div class="page-title">Tanishuv</div>
 
-    <button class="spin-btn" onclick="spinBottle()">
-      🍾 SHISHANI AYLANtirish
+      <div class="dating-card">
+
+        <div class="dating-avatar" id="datingAvatar">👩🏻</div>
+
+        <div class="dating-info">
+          <div class="dating-name" id="datingName">
+            Dilnoza, 22
+          </div>
+
+          <div class="dating-sub" id="datingCity">
+            📍 Toshkent
+          </div>
+
+          <div class="dating-sub">
+            Yangi odamlar bilan tanishing
+          </div>
+
+          <div class="dating-actions">
+            <button class="dating-action" onclick="datingNext()">❌</button>
+            <button class="dating-action" onclick="datingLike()">❤️</button>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= CHATS ================= -->
+    <section class="page" id="page-chats">
+
+      <div class="page-title">Xabarlar</div>
+
+      <div class="card" style="padding:5px 12px">
+
+        <div class="chat-item" onclick="openPrivateChat('Aziza','👩🏻')">
+          <div class="chat-avatar">👩🏻</div>
+
+          <div class="chat-info">
+            <div class="chat-name">Aziza</div>
+            <div class="chat-last">Salom 😊</div>
+          </div>
+
+          <div class="chat-time">12:41</div>
+        </div>
+
+        <div class="chat-item" onclick="openPrivateChat('Jasur','👨🏻')">
+          <div class="chat-avatar">👨🏻</div>
+
+          <div class="chat-info">
+            <div class="chat-name">Jasur</div>
+            <div class="chat-last">Qalaysiz?</div>
+          </div>
+
+          <div class="chat-time">11:20</div>
+        </div>
+
+        <div class="chat-item" onclick="openPrivateChat('Malika','👩🏽')">
+          <div class="chat-avatar">👩🏽</div>
+
+          <div class="chat-info">
+            <div class="chat-name">Malika</div>
+            <div class="chat-last">❤️ Sovg‘a yubordi</div>
+          </div>
+
+          <div class="chat-time">Kecha</div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= SHOP ================= -->
+    <section class="page" id="page-shop">
+
+      <div class="page-title">Do‘kon</div>
+
+      <div class="balance-card">
+        <div style="color:#858da0;font-size:12px">Sizning balansingiz</div>
+        <div class="big-balance">🪙 <span id="shopBalance">1 250</span></div>
+      </div>
+
+      <div class="section-title">Tangalar</div>
+
+      <div class="shop-grid">
+
+        <div class="shop-item">
+          <div class="shop-coin">🪙</div>
+          <div class="shop-amount">50</div>
+          <div class="shop-price">5 000 so‘m</div>
+          <button class="buy-btn" onclick="buyCoins(50)">Sotib olish</button>
+        </div>
+
+        <div class="shop-item">
+          <div class="shop-coin">🪙</div>
+          <div class="shop-amount">100</div>
+          <div class="shop-price">9 000 so‘m</div>
+          <button class="buy-btn" onclick="buyCoins(100)">Sotib olish</button>
+        </div>
+
+        <div class="shop-item">
+          <div class="shop-coin">🪙</div>
+          <div class="shop-amount">500</div>
+          <div class="shop-price">39 000 so‘m</div>
+          <button class="buy-btn" onclick="buyCoins(500)">Sotib olish</button>
+        </div>
+
+        <div class="shop-item">
+          <div class="shop-coin">🪙</div>
+          <div class="shop-amount">1 000</div>
+          <div class="shop-price">69 000 so‘m</div>
+          <button class="buy-btn" onclick="buyCoins(1000)">Sotib olish</button>
+        </div>
+
+      </div>
+
+      <div class="section-title">VIP</div>
+
+      <div class="card">
+        <div style="font-size:18px;font-weight:900">👑 VIP Premium</div>
+        <div style="color:#838b9c;font-size:12px;margin-top:5px">
+          Maxsus imkoniyatlar va VIP belgisi
+        </div>
+
+        <button class="primary-btn" onclick="showToast('VIP sotib olish tez orada ulanadi')">
+          VIP faollashtirish
+        </button>
+      </div>
+
+      <div class="section-title">Sovg‘alar</div>
+
+      <div class="shop-grid">
+
+        <div class="shop-item">
+          <div class="shop-coin">🌹</div>
+          <div class="shop-amount">Atirgul</div>
+          <div class="shop-price">10 🪙</div>
+          <button class="buy-btn" onclick="sendGift('🌹')">Yuborish</button>
+        </div>
+
+        <div class="shop-item">
+          <div class="shop-coin">💎</div>
+          <div class="shop-amount">Olmos</div>
+          <div class="shop-price">100 🪙</div>
+          <button class="buy-btn" onclick="sendGift('💎')">Yuborish</button>
+        </div>
+
+        <div class="shop-item">
+          <div class="shop-coin">🎁</div>
+          <div class="shop-amount">Sovg‘a</div>
+          <div class="shop-price">50 🪙</div>
+          <button class="buy-btn" onclick="sendGift('🎁')">Yuborish</button>
+        </div>
+
+        <div class="shop-item">
+          <div class="shop-coin">🇺🇿</div>
+          <div class="shop-amount">Milliy</div>
+          <div class="shop-price">150 🪙</div>
+          <button class="buy-btn" onclick="sendGift('🇺🇿')">Yuborish</button>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= PROFILE ================= -->
+    <section class="page" id="page-profile">
+
+      <div class="page-title">Profil</div>
+
+      <div class="profile-head">
+        <div class="profile-avatar">👨🏻</div>
+        <div class="profile-name">SpinUZ User</div>
+        <div class="profile-city">📍 Toshkent</div>
+      </div>
+
+      <div class="card">
+
+        <button class="setting-row" onclick="showToast('Profilni tahrirlash oynasi')">
+          <div class="setting-icon">✏️</div>
+          <div class="setting-text">
+            <div class="setting-title">Profilni tahrirlash</div>
+            <div class="setting-sub">Ism, yosh, jins va shahar</div>
+          </div>
+          <div class="arrow">›</div>
+        </button>
+
+        <button class="setting-row" onclick="openLanguage()">
+          <div class="setting-icon">🌐</div>
+          <div class="setting-text">
+            <div class="setting-title">Til</div>
+            <div class="setting-sub">O‘zbekcha</div>
+          </div>
+          <div class="arrow">›</div>
+        </button>
+
+        <button class="setting-row" onclick="toggleSetting('soundToggle')">
+          <div class="setting-icon">🔊</div>
+          <div class="setting-text">
+            <div class="setting-title">Ovoz</div>
+            <div class="setting-sub">Butilochka ovozi</div>
+          </div>
+          <div class="toggle on" id="soundToggle"></div>
+        </button>
+
+        <button class="setting-row" onclick="toggleSetting('animToggle')">
+          <div class="setting-icon">✨</div>
+          <div class="setting-text">
+            <div class="setting-title">Animatsiyalar</div>
+            <div class="setting-sub">Vizual effektlar</div>
+          </div>
+          <div class="toggle on" id="animToggle"></div>
+        </button>
+
+        <button class="setting-row" onclick="toggleSetting('notificationToggle')">
+          <div class="setting-icon">🔔</div>
+          <div class="setting-text">
+            <div class="setting-title">Bildirishnomalar</div>
+            <div class="setting-sub">Telegram xabarlari</div>
+          </div>
+          <div class="toggle on" id="notificationToggle"></div>
+        </button>
+
+        <button class="setting-row" onclick="showToast('Maxfiylik sozlamalari')">
+          <div class="setting-icon">🔒</div>
+          <div class="setting-text">
+            <div class="setting-title">Maxfiylik</div>
+            <div class="setting-sub">Kimlar profilingizni ko‘rishi</div>
+          </div>
+          <div class="arrow">›</div>
+        </button>
+
+        <button class="setting-row" onclick="showToast('Qora ro‘yxat')">
+          <div class="setting-icon">🚫</div>
+          <div class="setting-text">
+            <div class="setting-title">Qora ro‘yxat</div>
+            <div class="setting-sub">Bloklangan foydalanuvchilar</div>
+          </div>
+          <div class="arrow">›</div>
+        </button>
+
+      </div>
+
+      <button
+        class="primary-btn"
+        style="background:#272d39;color:#ff7676"
+        onclick="showToast('Chiqish')"
+      >
+        Akkauntdan chiqish
+      </button>
+
+    </section>
+
+  </main>
+
+
+  <!-- ================= BOTTOM NAV ================= -->
+
+  <nav class="bottom-nav">
+
+    <button class="nav-btn active" onclick="openPage('tables',this)">
+      <div class="nav-icon">🍾</div>
+      <div>Stollar</div>
     </button>
 
-    <div class="status" id="status">
-      Navbat: O'yinchi 1
-    </div>
+    <button class="nav-btn" onclick="openPage('dating',this)">
+      <div class="nav-icon">❤️</div>
+      <div>Tanishuv</div>
+    </button>
 
-  </div>
+    <button class="nav-btn" onclick="openPage('chats',this)">
+      <div class="nav-icon">💬</div>
+      <div>Xabarlar</div>
+    </button>
+
+    <button class="nav-btn" onclick="openPage('shop',this)">
+      <div class="nav-icon">🛍️</div>
+      <div>Do‘kon</div>
+    </button>
+
+    <button class="nav-btn" onclick="openPage('profile',this)">
+      <div class="nav-icon">👤</div>
+      <div>Profil</div>
+    </button>
+
+  </nav>
 
 
-  <!-- MENU -->
+  <!-- ================= PLAYER MODAL ================= -->
 
-  <div class="menu" id="menu" onclick="closeMenu(event)">
+  <div class="overlay" id="playerOverlay" onclick="closeOverlay(event,'playerOverlay')">
 
-    <div class="menu-box">
+    <div class="modal">
 
-      <button class="menu-item">🏅 Yutuqlar</button>
-      <button class="menu-item">🏆 Reytinglar</button>
-      <button class="menu-item">🍾 Shisha</button>
-      <button class="menu-item">🖼️ Bezash</button>
-      <button class="menu-item">⚡ Kuchaytirgichlar</button>
-      <button class="menu-item">👤 Profil</button>
-      <button class="menu-item">⚙️ Sozlamalar</button>
+      <div class="modal-handle"></div>
 
-      <button class="menu-item close-menu" onclick="toggleMenu()">
-        ✕ Yopish
+      <div class="modal-profile">
+
+        <div class="modal-avatar" id="modalAvatar">👩🏻</div>
+
+        <div>
+          <div id="modalName" style="font-size:17px;font-weight:900">
+            Aziza
+          </div>
+
+          <div id="modalInfo" style="font-size:12px;color:#858da0;margin-top:3px">
+            24 yosh • Toshkent
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+
+        <button class="modal-action" onclick="sendModalGift()">
+          🎁 Sovg‘a yuborish
+        </button>
+
+        <button class="modal-action" onclick="openPrivateChatFromModal()">
+          💬 Lichka
+        </button>
+
+        <button class="modal-action" onclick="likeUser()">
+          ❤️ Like
+        </button>
+
+        <button class="modal-action" onclick="reportUser()">
+          🚩 Shikoyat
+        </button>
+
+        <button class="modal-action danger" onclick="blockUser()">
+          🚫 Bloklash
+        </button>
+
+      </div>
+
+      <button class="close-btn" onclick="closeModal('playerOverlay')">
+        Yopish
       </button>
 
     </div>
 
   </div>
 
+
+  <!-- ================= DAILY MODAL ================= -->
+
+  <div class="overlay" id="dailyOverlay">
+
+    <div class="modal">
+
+      <div class="modal-handle"></div>
+
+      <div class="modal-title" style="text-align:center">
+        Kunlik bonus 🎁
+      </div>
+
+      <div class="daily-icon">🪙</div>
+
+      <div class="daily-text">
+        Bugungi bonusingiz tayyor!
+        Bonusni oling va SpinUZ'da davom eting.
+      </div>
+
+      <button class="primary-btn" onclick="claimDaily()">
+        +100 tanga olish
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================= LANGUAGE MODAL ================= -->
+
+  <div class="overlay" id="languageOverlay" onclick="closeOverlay(event,'languageOverlay')">
+
+    <div class="modal">
+
+      <div class="modal-handle"></div>
+
+      <div class="modal-title">Tilni tanlang</div>
+
+      <button class="setting-row" onclick="chooseLanguage('O‘zbekcha')">
+        <div class="setting-icon">🇺🇿</div>
+        <div class="setting-text">
+          <div class="setting-title">O‘zbekcha</div>
+        </div>
+      </button>
+
+      <button class="setting-row" onclick="chooseLanguage('Русский')">
+        <div class="setting-icon">🇷🇺</div>
+        <div class="setting-text">
+          <div class="setting-title">Русский</div>
+        </div>
+      </button>
+
+      <button class="setting-row" onclick="chooseLanguage('English')">
+        <div class="setting-icon">🇬🇧</div>
+        <div class="setting-text">
+          <div class="setting-title">English</div>
+        </div>
+      </button>
+
+      <button class="close-btn" onclick="closeModal('languageOverlay')">
+        Yopish
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================= TOAST ================= -->
+
+  <div class="toast" id="toast"></div>
+
 </div>
 
 
 <script>
+  /* =========================================================
+     SpinUZ FRONTEND
+     Hozircha test rejimi.
+     Keyingi bosqichda server.js bilan ulanadi.
+     ========================================================= */
 
-  const socket = io();
+  let balance = 1250;
+  let isSpinning = false;
+  let currentPlayer = {
+    name: "Aziza",
+    avatar: "👩🏻"
+  };
 
-  let spinning = false;
+  const bottle = document.getElementById("bottle");
+  const spinButton = document.getElementById("spinButton");
+  const turnIndicator = document.getElementById("turnIndicator");
 
-  function toggleMenu() {
-    document.getElementById("menu").classList.toggle("open");
-  }
 
-  function closeMenu(event) {
-    if (event.target.id === "menu") {
-      toggleMenu();
+  /* ================= NAVIGATION ================= */
+
+  function openPage(page, button){
+
+    document.querySelectorAll(".page").forEach(p=>{
+      p.classList.remove("active");
+    });
+
+    const target = document.getElementById("page-" + page);
+
+    if(target){
+      target.classList.add("active");
     }
+
+    document.querySelectorAll(".nav-btn").forEach(btn=>{
+      btn.classList.remove("active");
+    });
+
+    if(button){
+      button.classList.add("active");
+    }
+
   }
 
-  function spinBottle() {
 
-    if (spinning) return;
+  /* ================= BALANCE ================= */
 
-    spinning = true;
+  function updateBalance(){
 
-    const bottle = document.getElementById("bottle");
-    const status = document.getElementById("status");
+    const formatted = balance.toLocaleString("uz-UZ");
 
-    status.textContent = "🍾 Shisha aylanmoqda...";
+    document.getElementById("coinBalance").textContent = formatted;
+    document.getElementById("shopBalance").textContent = formatted;
 
-    const rotation =
-      1440 + Math.floor(Math.random() * 1440);
+  }
 
-    bottle.style.transition =
-      "transform 3s cubic-bezier(.12,.72,.15,1)";
+
+  /* ================= SPIN ================= */
+
+  function spinBottle(){
+
+    if(isSpinning) return;
+
+    isSpinning = true;
+
+    spinButton.classList.add("disabled");
+    turnIndicator.textContent = "Butilochka aylanmoqda...";
+
+    const randomTurns = 5 + Math.floor(Math.random() * 5);
+    const randomAngle = Math.floor(Math.random() * 360);
 
     bottle.style.transform =
-      `rotate(${rotation}deg)`;
+      "rotate(" + (randomTurns * 360 + randomAngle) + "deg)";
 
-    setTimeout(() => {
+    setTimeout(()=>{
 
-      spinning = false;
+      isSpinning = false;
+      spinButton.classList.remove("disabled");
 
-      status.textContent =
-        "Navbat: O'yinchi 2";
+      turnIndicator.textContent = "Navbat keyingi o‘yinchida";
 
-    }, 3200);
+      showToast("Navbat o‘zgardi 🍾");
+
+      setTimeout(()=>{
+        turnIndicator.textContent = "Sizning navbatingiz";
+      },2200);
+
+    },3000);
 
   }
+
+
+  /* ================= NEXT TABLE ================= */
+
+  function nextTable(){
+
+    const number = 1000 + Math.floor(Math.random()*8999);
+
+    document.querySelector(".room-name").textContent =
+      "Stol #" + number;
+
+    showToast("Yangi stol topildi");
+
+  }
+
+
+  /* ================= PLAYER ================= */
+
+  function openPlayer(name, avatar, info){
+
+    currentPlayer.name = name;
+    currentPlayer.avatar = avatar;
+
+    document.getElementById("modalName").textContent = name;
+    document.getElementById("modalAvatar").textContent = avatar;
+    document.getElementById("modalInfo").textContent = info;
+
+    document.getElementById("playerOverlay").classList.add("show");
+
+  }
+
+
+  function closeModal(id){
+
+    const el = document.getElementById(id);
+
+    if(el){
+      el.classList.remove("show");
+    }
+
+  }
+
+
+  function closeOverlay(event,id){
+
+    if(event.target.id === id){
+      closeModal(id);
+    }
+
+  }
+
+
+  function sendModalGift(){
+
+    showToast(currentPlayer.name + "ga sovg‘a yuborildi 🎁");
+    closeModal("playerOverlay");
+
+  }
+
+
+  function openPrivateChatFromModal(){
+
+    closeModal("playerOverlay");
+
+    showToast(currentPlayer.name + " bilan chat ochildi");
+
+    setTimeout(()=>{
+      openPage("chats",document.querySelectorAll(".nav-btn")[2]);
+    },300);
+
+  }
+
+
+  function likeUser(){
+
+    showToast(currentPlayer.name + "ga ❤️ yuborildi");
+    closeModal("playerOverlay");
+
+  }
+
+
+  function reportUser(){
+
+    showToast("Shikoyat qabul qilindi 🚩");
+    closeModal("playerOverlay");
+
+  }
+
+
+  function blockUser(){
+
+    showToast(currentPlayer.name + " bloklandi 🚫");
+    closeModal("playerOverlay");
+
+  }
+
+
+  /* ================= CHAT ================= */
+
+  function sendMessage(){
+
+    const input = document.getElementById("chatInput");
+
+    const message = input.value.trim();
+
+    if(!message) return;
+
+    showToast("Xabar yuborildi");
+
+    input.value = "";
+
+  }
+
+
+  function openPrivateChat(name,avatar){
+
+    showToast(name + " bilan suhbat ochildi");
+
+  }
+
+
+  /* ================= DATING ================= */
+
+  const datingProfiles = [
+    {
+      name:"Dilnoza, 22",
+      city:"📍 Toshkent",
+      avatar:"👩🏻"
+    },
+    {
+      name:"Madina, 21",
+      city:"📍 Buxoro",
+      avatar:"👩🏼"
+    },
+    {
+      name:"Malika, 23",
+      city:"📍 Namangan",
+      avatar:"👩🏽"
+    },
+    {
+      name:"Sevinch, 24",
+      city:"📍 Samarqand",
+      avatar:"👩🏻"
+    }
+  ];
+
+  let datingIndex = 0;
+
+
+  function datingNext(){
+
+    datingIndex++;
+
+    if(datingIndex >= datingProfiles.length){
+      datingIndex = 0;
+    }
+
+    const profile = datingProfiles[datingIndex];
+
+    document.getElementById("datingName").textContent =
+      profile.name;
+
+    document.getElementById("datingCity").textContent =
+      profile.city;
+
+    document.getElementById("datingAvatar").textContent =
+      profile.avatar;
+
+  }
+
+
+  function datingLike(){
+
+    showToast("Like yuborildi ❤️");
+
+    setTimeout(()=>{
+      datingNext();
+    },400);
+
+  }
+
+
+  /* ================= SHOP ================= */
+
+  function buyCoins(amount){
+
+    balance += amount;
+
+    updateBalance();
+
+    showToast("+" + amount + " tanga test balansga qo‘shildi");
+
+  }
+
+
+  function sendGift(gift){
+
+    showToast(gift + " sovg‘asi tanlandi");
+
+  }
+
+
+  /* ================= PROFILE ================= */
+
+  function toggleSetting(id){
+
+    const el = document.getElementById(id);
+
+    if(!el) return;
+
+    el.classList.toggle("on");
+
+  }
+
+
+  function openLanguage(){
+
+    document
+      .getElementById("languageOverlay")
+      .classList.add("show");
+
+  }
+
+
+  function chooseLanguage(language){
+
+    showToast("Til: " + language);
+
+    closeModal("languageOverlay");
+
+  }
+
+
+  /* ================= DAILY ================= */
+
+  function claimDaily(){
+
+    balance += 100;
+
+    updateBalance();
+
+    closeModal("dailyOverlay");
+
+    showToast("+100 tanga olindi 🎁");
+
+  }
+
+
+  /* ================= TOAST ================= */
+
+  let toastTimer;
+
+  function showToast(message){
+
+    const toast = document.getElementById("toast");
+
+    toast.textContent = message;
+
+    toast.classList.add("show");
+
+    clearTimeout(toastTimer);
+
+    toastTimer = setTimeout(()=>{
+      toast.classList.remove("show");
+    },2200);
+
+  }
+
+
+  /* ================= START ================= */
+
+  updateBalance();
+
+  /*
+    Test uchun daily bonusni avtomatik ochmayapmiz.
+    Server.js ulangandan keyin Telegram userga
+    real daily reward beriladi.
+  */
 
 </script>
 
 </body>
-  </
+            </html>
