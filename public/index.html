@@ -1,1 +1,513 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
 
+  <title>SpinUZ</title>
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background: #17110c;
+      color: white;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at center, #4b301b 0%, #2c1c10 45%, #130d08 100%);
+    }
+
+    /* TOP BAR */
+
+    .topbar {
+      height: 64px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 10;
+    }
+
+    .top-left,
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .heart {
+      background: rgba(0, 0, 0, .35);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      padding: 7px 11px;
+      font-size: 14px;
+    }
+
+    .menu-btn {
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(0,0,0,.38);
+      color: white;
+      font-size: 21px;
+    }
+
+    .table-number {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 19px;
+      font-size: 13px;
+      opacity: .8;
+    }
+
+    /* TABLE */
+
+    .table {
+      position: absolute;
+      left: 50%;
+      top: 54%;
+      width: 92%;
+      height: 64%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background:
+        radial-gradient(ellipse at center, #a7662f 0%, #77451f 48%, #3d2110 100%);
+      border: 10px solid #24140a;
+      box-shadow:
+        inset 0 0 35px rgba(0,0,0,.65),
+        0 20px 50px rgba(0,0,0,.55);
+    }
+
+    .table::after {
+      content: "";
+      position: absolute;
+      inset: 13px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.08);
+      pointer-events: none;
+    }
+
+    /* BOTTLE */
+
+    .bottle-area {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 150px;
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bottle {
+      position: relative;
+      width: 30px;
+      height: 100px;
+      transform-origin: 50% 50%;
+      filter: drop-shadow(0 7px 5px rgba(0,0,0,.5));
+    }
+
+    .bottle-body {
+      position: absolute;
+      bottom: 0;
+      left: 4px;
+      width: 22px;
+      height: 65px;
+      border-radius: 9px 9px 5px 5px;
+      background: linear-gradient(
+        90deg,
+        #164c2b,
+        #4fae68,
+        #164c2b
+      );
+      border: 2px solid #12351f;
+    }
+
+    .bottle-neck {
+      position: absolute;
+      top: 3px;
+      left: 10px;
+      width: 10px;
+      height: 38px;
+      border-radius: 4px;
+      background: linear-gradient(
+        90deg,
+        #164c2b,
+        #63bd78,
+        #164c2b
+      );
+    }
+
+    .bottle-cap {
+      position: absolute;
+      top: 0;
+      left: 9px;
+      width: 12px;
+      height: 7px;
+      border-radius: 2px;
+      background: #d9b56c;
+    }
+
+    /* PLAYERS */
+
+    .player {
+      position: absolute;
+      width: 78px;
+      text-align: center;
+      z-index: 5;
+    }
+
+    .avatar {
+      width: 50px;
+      height: 50px;
+      margin: auto;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #777, #333);
+      border: 3px solid #d9b56c;
+      box-shadow: 0 5px 15px rgba(0,0,0,.45);
+      font-size: 23px;
+    }
+
+    .player-name {
+      margin-top: 5px;
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .player-age {
+      font-size: 10px;
+      opacity: .65;
+    }
+
+    .p1 {
+      left: 50%;
+      top: 5%;
+      transform: translateX(-50%);
+    }
+
+    .p2 {
+      right: 5%;
+      top: 27%;
+    }
+
+    .p3 {
+      right: 5%;
+      bottom: 20%;
+    }
+
+    .p4 {
+      left: 50%;
+      bottom: 4%;
+      transform: translateX(-50%);
+    }
+
+    .p5 {
+      left: 5%;
+      bottom: 20%;
+    }
+
+    .p6 {
+      left: 5%;
+      top: 27%;
+    }
+
+    /* BOTTOM */
+
+    .bottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 105px;
+      padding: 12px;
+      background: linear-gradient(
+        to top,
+        rgba(10,7,4,.96),
+        rgba(10,7,4,.7),
+        transparent
+      );
+      z-index: 20;
+    }
+
+    .spin-btn {
+      display: block;
+      width: min(280px, 75%);
+      height: 52px;
+      margin: auto;
+      border: 0;
+      border-radius: 27px;
+      background: linear-gradient(135deg, #f4c45d, #b87920);
+      color: #241507;
+      font-size: 17px;
+      font-weight: 800;
+      box-shadow: 0 7px 20px rgba(0,0,0,.4);
+    }
+
+    .spin-btn:active {
+      transform: scale(.96);
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 7px;
+      font-size: 11px;
+      opacity: .7;
+    }
+
+    /* MENU */
+
+    .menu {
+      position: absolute;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      background: rgba(0,0,0,.72);
+      backdrop-filter: blur(8px);
+    }
+
+    .menu.open {
+      display: block;
+    }
+
+    .menu-box {
+      position: absolute;
+      right: 12px;
+      top: 58px;
+      width: 220px;
+      padding: 8px;
+      border-radius: 18px;
+      background: #25170d;
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 15px 40px rgba(0,0,0,.55);
+    }
+
+    .menu-item {
+      width: 100%;
+      padding: 13px 12px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color: white;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .menu-item:active {
+      background: rgba(255,255,255,.08);
+    }
+
+    .close-menu {
+      color: #ffca63;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- TOP -->
+
+  <div class="topbar">
+
+    <div class="top-left">
+      <div class="heart">❤️ 0</div>
+    </div>
+
+    <div class="table-number">
+      Stol 1
+    </div>
+
+    <div class="top-right">
+      <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    </div>
+
+  </div>
+
+
+  <!-- TABLE -->
+
+  <div class="table">
+
+    <!-- PLAYERS -->
+
+    <div class="player p1">
+      <div class="avatar">👤</div>
+      <div class="player-name">O'yinchi 1</div>
+      <div class="player-age">18</div>
+    </div>
+
+    <div class="player p2">
+      <div class="avatar">👤</div>
+      <div class="player-name">O'yinchi 2</div>
+      <div class="player-age">20</div>
+    </div>
+
+    <div class="player p3">
+      <div class="avatar">👤</div>
+      <div class="player-name">O'yinchi 3</div>
+      <div class="player-age">19</div>
+    </div>
+
+    <div class="player p4">
+      <div class="avatar">👤</div>
+      <div class="player-name">O'yinchi 4</div>
+      <div class="player-age">21</div>
+    </div>
+
+    <div class="player p5">
+      <div class="avatar">👤</div>
+      <div class="player-name">O'yinchi 5</div>
+      <div class="player-age">20</div>
+    </div>
+
+    <div class="player p6">
+      <div class="avatar">👤</div>
+      <div class="player-name">O'yinchi 6</div>
+      <div class="player-age">19</div>
+    </div>
+
+
+    <!-- BOTTLE -->
+
+    <div class="bottle-area">
+      <div class="bottle" id="bottle">
+
+        <div class="bottle-cap"></div>
+        <div class="bottle-neck"></div>
+        <div class="bottle-body"></div>
+
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- BOTTOM -->
+
+  <div class="bottom">
+
+    <button class="spin-btn" onclick="spinBottle()">
+      🍾 SHISHANI AYLANtirish
+    </button>
+
+    <div class="status" id="status">
+      Navbat: O'yinchi 1
+    </div>
+
+  </div>
+
+
+  <!-- MENU -->
+
+  <div class="menu" id="menu" onclick="closeMenu(event)">
+
+    <div class="menu-box">
+
+      <button class="menu-item">🏅 Yutuqlar</button>
+      <button class="menu-item">🏆 Reytinglar</button>
+      <button class="menu-item">🍾 Shisha</button>
+      <button class="menu-item">🖼️ Bezash</button>
+      <button class="menu-item">⚡ Kuchaytirgichlar</button>
+      <button class="menu-item">👤 Profil</button>
+      <button class="menu-item">⚙️ Sozlamalar</button>
+
+      <button class="menu-item close-menu" onclick="toggleMenu()">
+        ✕ Yopish
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+  const socket = io();
+
+  let spinning = false;
+
+  function toggleMenu() {
+    document.getElementById("menu").classList.toggle("open");
+  }
+
+  function closeMenu(event) {
+    if (event.target.id === "menu") {
+      toggleMenu();
+    }
+  }
+
+  function spinBottle() {
+
+    if (spinning) return;
+
+    spinning = true;
+
+    const bottle = document.getElementById("bottle");
+    const status = document.getElementById("status");
+
+    status.textContent = "🍾 Shisha aylanmoqda...";
+
+    const rotation =
+      1440 + Math.floor(Math.random() * 1440);
+
+    bottle.style.transition =
+      "transform 3s cubic-bezier(.12,.72,.15,1)";
+
+    bottle.style.transform =
+      `rotate(${rotation}deg)`;
+
+    setTimeout(() => {
+
+      spinning = false;
+
+      status.textContent =
+        "Navbat: O'yinchi 2";
+
+    }, 3200);
+
+  }
+
+</script>
+
+</body>
+  </html>
